@@ -1,5 +1,8 @@
 package org.example;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,9 +10,37 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 
 public class CsvStatement implements Statement {
+	private Path directory;
+
+	CsvStatement(Path directory) {
+		this.directory = directory;
+	}
+
 	@Override
 	public ResultSet executeQuery(String s) throws SQLException {
-		return null;
+		String fileName = getFileName(s);
+
+		Path filePath = directory.resolve(fileName);
+
+		if (!Files.exists(filePath))
+			throw new SQLException(filePath.toAbsolutePath().toString() + " does not exists");
+
+		try {
+			return new CsvResultSet(Files.lines(filePath));
+		} catch (IOException e) {
+			throw new SQLException("'" + filePath.toString() + "' file can not be read", e);
+		}
+	}
+
+	private String getFileName(String sqlExpression) throws SQLException {
+		sqlExpression = sqlExpression.trim();
+		if (sqlExpression.isEmpty()) throw new SQLException("Empty sql expression");
+
+		String[] parts = sqlExpression.split(" +");
+		String fileName = parts[parts.length - 1];
+		if (fileName.endsWith(";")) fileName = fileName.substring(0, fileName.length() - 1);
+
+		return fileName;
 	}
 
 	@Override

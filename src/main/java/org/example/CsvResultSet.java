@@ -20,12 +20,29 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class CsvResultSet implements ResultSet {
+	private static final String FIELD_SEPARATOR = ";";
+	private Iterator<String> iterator;
+	private List<String> record = null;
+
+	public CsvResultSet(Stream<String> s) {
+		iterator = s.iterator();
+	}
 	@Override
 	public boolean next() throws SQLException {
-		return false;
+		boolean retVal = iterator.hasNext();
+		record = null;
+
+		if (iterator.hasNext()) {
+			record = List.of(iterator.next().split(FIELD_SEPARATOR));
+		}
+
+		return retVal;
 	}
 
 	@Override
@@ -40,7 +57,7 @@ public class CsvResultSet implements ResultSet {
 
 	@Override
 	public String getString(int i) throws SQLException {
-		return null;
+		return record.get(i-1);
 	}
 
 	@Override

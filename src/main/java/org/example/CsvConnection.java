@@ -1,5 +1,6 @@
 package org.example;
 
+import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -19,9 +20,15 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public class CsvConnection implements java.sql.Connection {
+	private Path directory;
+
+	CsvConnection(Path directory) {
+		this.directory = directory;
+	}
+
 	@Override
 	public Statement createStatement() throws SQLException {
-		return null;
+		return new CsvStatement(directory);
 	}
 
 	@Override
