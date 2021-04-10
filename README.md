@@ -1,6 +1,6 @@
 ## csv jdbc driver
 
-I wrote a "csv-jdbc-driver" just for fun. It is far from production quality code, my goal was only demonstrate (for myself) how to write a jdbc driver.
+I wrote a "csv-jdbc-driver" just for fun. It is far from production quality code, my goal was only to demonstrate (for myself) how to write a jdbc driver.
 
 Here are my experiences:
 * As others wrote, it is enough for implementing 4 interfaces from java.sql: Driver, Statement, Connection, ResultSet.
