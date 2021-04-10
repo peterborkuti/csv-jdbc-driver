@@ -9,8 +9,10 @@ import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class CsvDriver implements Driver {
 	private static final Driver INSTANCE = new CsvDriver();
@@ -24,9 +26,9 @@ public class CsvDriver implements Driver {
 		if (parts.length < 2 ||	!parts[0].toLowerCase().equals("jdbc") || !parts[1].toLowerCase().equals("csv"))
 			return null;
 
-		if (parts.length != 3) throw new IllegalArgumentException("Connection string format should be jdbc:csv:directory");
+		String directory = Arrays.stream(parts).skip(2).collect(Collectors.joining(":"));
 
-		Path path = Paths.get(parts[2]).toAbsolutePath();
+		Path path = Paths.get(directory).toAbsolutePath();
 
 		if (!Files.isDirectory(path)) throw new SQLException("'" + path + "' is not a directory");
 
@@ -63,20 +65,20 @@ public class CsvDriver implements Driver {
 		return null;
 	}
 
-	public static synchronized Driver load() throws SQLException {
+	public static synchronized Driver load() {
 		if (!registered) {
 			registered = true;
-			DriverManager.registerDriver(INSTANCE);
+			try {
+				DriverManager.registerDriver(INSTANCE);
+			} catch (SQLException throwables) {
+				throwables.printStackTrace();
+			}
 		}
 
 		return INSTANCE;
 	}
 
 	static {
-		try {
-			load();
-		} catch (SQLException throwables) {
-			throwables.printStackTrace();
-		}
+		load();
 	}
 }
